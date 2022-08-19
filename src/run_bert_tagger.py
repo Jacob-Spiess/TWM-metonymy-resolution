@@ -244,7 +244,6 @@ def load_and_cache_examples(args, tokenizer, labels, pad_token_label_id, file_na
     dataset = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
     return dataset
 
-
 def main():
     parser = argparse.ArgumentParser()
 
@@ -290,7 +289,7 @@ def main():
         + "If no data dir or train/predict files are specified, will run with tensorflow_datasets.",
     )
     parser.add_argument(
-        "--predict_file",
+        "--test_file",
         default=None,
         type=str,
         help="The input evaluation file. If a data dir is specified, will look for the file there"
@@ -325,7 +324,7 @@ def main():
         "--do_lower_case", default=True, action="store_true", help="Set this flag if you are using an uncased model."
     )
 
-    parser.add_argument("--per_gpu_train_batch_size", default=32, type=int, help="Batch size per GPU/CPU for training.")
+    parser.add_argument("--per_gpu_train_batch_size", default=16, type=int, help="Batch size per GPU/CPU for training.")
     parser.add_argument(
         "--per_gpu_eval_batch_size", default=32, type=int, help="Batch size per GPU/CPU for evaluation."
     )
@@ -369,6 +368,9 @@ def main():
     parser.add_argument(
         "--overwrite_cache", action="store_true", help="Overwrite the cached training and evaluation sets"
     )
+    parser.add_argument(
+        "--do_predict", action="store_true", help="set if run the prediction"
+    )
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 
     args = parser.parse_args()
@@ -397,6 +399,7 @@ def main():
     set_seed(args)
 
     labels = get_labels(args.labels)
+    print(labels)
     num_labels = len(labels)
     pad_token_label_id = CrossEntropyLoss().ignore_index
 
@@ -493,3 +496,5 @@ def main():
                         logger.warning("Maximum sequence length exceeded: No prediction for '%s'.", line.split()[0])
 
     return results
+
+main()

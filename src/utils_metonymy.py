@@ -144,7 +144,11 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
     all_token_type_ids = torch.tensor([f.token_type_ids for f in features], dtype=torch.long)
     all_start_positions = torch.tensor([f.start_position for f in features], dtype=torch.long)
     all_end_positions = torch.tensor([f.end_position for f in features], dtype=torch.long)
-    all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
+    temp = [f.label for f in features]
+    for i in range(len(temp)):
+        if not temp[i]:
+            temp[i] = 0
+    all_labels = torch.tensor(temp, dtype=torch.long)
 
     dataset = TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids,
                             all_start_positions, all_end_positions, all_labels)
