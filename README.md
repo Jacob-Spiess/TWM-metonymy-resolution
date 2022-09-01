@@ -65,3 +65,7 @@ Run `run_bert_tagger.py` on the data in `data/geoparsing/gold` directly.
 
 #### Our model
 Run `run_bert_tagger.py` on the data in `data/geoparsing/gold_entity` to first detect the toponyms. Then convert predictions to json file. Finally, use `run_metonymy_resolution.py` to classify the readings.
+
+Run bert tagger by running
+
+`python run_bert_tagger.py --data_dir ../data/geoparsing/gold_toponym --output_dir ../output/geoparsing/ --labels ../data/geoparsing/gold_toponym/labels_bmes.txt --train_file train0_bmes.txt --test_file test0_bmes.txt --do_predict --overwrite_output_dir --do_train --do_eval`

@@ -113,7 +113,7 @@ def convert_examples_to_features(examples,
 
         # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
         special_tokens_count = 2
-        if len(tokens) > max_seq_length - special_tokens_count:
+        if len(tokens) > max_seq_length - special_tokens_count or len(label_ids) > max_seq_length - special_tokens_count:
             logger.info(f'An example with length {len(tokens)}, exceed max length {max_seq_length}')
             tokens = tokens[:(max_seq_length - special_tokens_count)]
             label_ids = label_ids[:(max_seq_length - special_tokens_count)]
@@ -138,11 +138,12 @@ def convert_examples_to_features(examples,
         input_mask = [1 if mask_padding_with_zero else 0] * len(input_ids)
 
         # Zero-pad up to the sequence length.
+        padding_length_labels = max_seq_length - len(label_ids)
         padding_length = max_seq_length - len(input_ids)
         input_ids += ([pad_token] * padding_length)
         input_mask += ([0 if mask_padding_with_zero else 1] * padding_length)
         segment_ids += ([pad_token_segment_id] * padding_length)
-        label_ids += ([pad_token_label_id] * padding_length)
+        label_ids += ([pad_token_label_id] * padding_length_labels)
 
         assert len(input_ids) == max_seq_length
         assert len(input_mask) == max_seq_length

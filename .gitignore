@@ -2,3 +2,4 @@ output*
 cached*
 runs
 __pycache__
+data_vis.ipynb

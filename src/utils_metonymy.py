@@ -7,7 +7,7 @@ import copy
 import json
 import torch
 from torch import nn
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss, BCELoss, NLLLoss
 import random
 import logging
 
@@ -21,7 +21,17 @@ class BertForWordClassification(BertPreTrainedModel):
 
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
+        # self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
+
+        self.classifier = nn.Sequential(
+            nn.Linear(config.hidden_size, config.hidden_size*2),
+            nn.ReLU(),
+            nn.Linear(config.hidden_size*2, config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(config.hidden_size, config.num_labels),
+        )
+
+        self.loss_fnc = CrossEntropyLoss()
 
         self.init_weights()
 
@@ -43,8 +53,7 @@ class BertForWordClassification(BertPreTrainedModel):
         outputs = (logits,) + outputs[2:]
 
         if labels is not None:
-            loss_fct = CrossEntropyLoss()
-            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            loss = self.loss_fnc(logits.view(-1, self.num_labels), labels.view(-1))
             outputs = (loss,) + outputs
 
         return outputs
