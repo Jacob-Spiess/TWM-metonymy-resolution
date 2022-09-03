@@ -215,7 +215,7 @@ def main():
 
     parser.add_argument(
         "--do_mask",
-        required=True,
+        required=False,
 
         action="store_true", help="Set this flag if you are using an uncased model."
     )

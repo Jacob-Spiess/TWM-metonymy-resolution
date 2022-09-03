@@ -14,6 +14,45 @@ import logging
 logger = logging.getLogger(__name__)
 
 class BertForWordClassification(BertPreTrainedModel):
+    
+    def __init__(self, config):
+        super(BertForWordClassification, self).__init__(config)
+        self.num_labels = config.num_labels
+
+        self.bert = BertModel(config)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        # self.classifier = nn.Linear(config.hidden_size, self.config.num_labels)
+
+        self.classifier = nn.Linear(config.hidden_size, self.num_labels)
+
+        self.loss_fnc = CrossEntropyLoss()
+
+        self.init_weights()
+
+    def forward(self, input_ids, attention_mask=None, token_type_ids=None, position_ids=None, head_mask=None,
+                start_position=None, end_position=None, labels=None):
+        outputs = self.bert(input_ids,
+                            attention_mask=attention_mask,
+                            token_type_ids=token_type_ids,
+                            position_ids=position_ids,
+                            head_mask=head_mask)
+
+        output = outputs[0]
+        output = self.dropout(output)
+        span_output = torch.randn(output.shape[0],output.shape[-1]).to(output.device)
+        for i in range(output.shape[0]):
+            span_output[i] = output[i][start_position[i]:end_position[i]].mean(dim=0)
+        logits = self.classifier(span_output)
+
+        outputs = (logits,) + outputs[2:]
+
+        if labels is not None:
+            loss = self.loss_fnc(logits.view(-1, self.num_labels), labels.view(-1))
+            outputs = (loss,) + outputs
+
+        return outputs
+
+class BertForWordClassificationNew(BertPreTrainedModel):
 
     def __init__(self, config):
         super(BertForWordClassification, self).__init__(config)
@@ -60,6 +99,7 @@ class BertForWordClassification(BertPreTrainedModel):
 
 MODEL_CLASSES = {
     'bert': (BertConfig, BertForWordClassification, BertTokenizer),
+    'bert_new': (BertConfig, BertForWordClassificationNew, BertTokenizer),
 }
 
 
